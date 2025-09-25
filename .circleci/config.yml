@@ -6,7 +6,7 @@ executors:
       - image: cimg/base:stable
   java-docker-executor:
     docker:
-      - image: chainguard/maven:openjdk-17
+      - image: gcr.io/cloud-builders/mvn
 
 jobs:
   build-and-push:
