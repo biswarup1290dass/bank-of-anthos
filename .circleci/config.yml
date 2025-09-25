@@ -13,20 +13,42 @@ jobs:
     executor: docker-executor
     steps:
       - checkout
-      - setup_remote_docker
+
+      - setup_remote_docker  # no version!
+
+      - run:
+          name: Set build path
+          command: |
+            case "<< parameters.service >>" in
+              accounts-db) BUILD_PATH="src/accounts/accounts-db" ;;
+              contacts) BUILD_PATH="src/accounts/contacts" ;;
+              userservice) BUILD_PATH="src/accounts/userservice" ;;
+              frontend) BUILD_PATH="src/frontend" ;;
+              balancereader) BUILD_PATH="src/ledger/balancereader" ;;
+              ledgerwriter) BUILD_PATH="src/ledger/ledgerwriter" ;;
+              transactionhistory) BUILD_PATH="src/ledger/transactionhistory" ;;
+              ledger-db) BUILD_PATH="src/ledger/ledger-db" ;;
+              loadgenerator) BUILD_PATH="src/loadgenerator" ;;
+              *)
+                echo "Unknown service: << parameters.service >>"
+                exit 1
+                ;;
+            esac
+            echo "export BUILD_PATH=$BUILD_PATH" >> $BASH_ENV
+
       - run:
           name: Build Docker image
           command: |
-            IMAGE_NAME="${DOCKER_REGISTRY}/bank-of-anthos-<< parameters.service >>"
-            docker build -t "$IMAGE_NAME:latest" ./src/<< parameters.service >>
+            IMAGE_NAME="${DOCKER_REGISTRY}/${DOCKER_ORG}/bank-of-anthos-<< parameters.service >>"
+            docker build -t "$IMAGE_NAME:latest" "$BUILD_PATH"
             docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:${CIRCLE_SHA1}"
+
       - run:
           name: Push Docker image
           command: |
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
-            IMAGE_NAME="${DOCKER_REGISTRY}/${DOCKER_ORG}/bank-of-anthos-<< parameters.service >>"
-            docker push "$IMAGE_NAME:latest"
-            docker push "$IMAGE_NAME:${CIRCLE_SHA1}"
+            docker push "${DOCKER_REGISTRY}/${DOCKER_ORG}/bank-of-anthos-<< parameters.service >>:latest"
+            docker push "${DOCKER_REGISTRY}/${DOCKER_ORG}/bank-of-anthos-<< parameters.service >>:${CIRCLE_SHA1}"
 
 workflows:
   version: 2
@@ -35,4 +57,13 @@ workflows:
       - build-and-push:
           matrix:
             parameters:
-              service: [accounts, balancereader, contacts, frontend, ledgerwriter, loadgenerator, transactionhistory, userservice]
+              service:
+                - accounts-db
+                - contacts
+                - userservice
+                - frontend
+                - balancereader
+                - ledgerwriter
+                - transactionhistory
+                - ledger-db
+                - loadgenerator
