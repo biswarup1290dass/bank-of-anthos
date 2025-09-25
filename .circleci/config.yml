@@ -16,23 +16,6 @@ jobs:
     executor: python-docker-executor  # Placeholder; will switch dynamically
     steps:
       - checkout
-
-      # Determine executor type based on service
-      - run:
-          name: Select executor
-          command: |
-            case "<< parameters.service >>" in
-              balancereader|ledgerwriter|transactionhistory)
-                echo "Using Java executor for << parameters.service >>"
-                echo "export EXECUTOR_TYPE=java-docker-executor" >> $BASH_ENV
-                ;;
-              *)
-                echo "Using Python executor for << parameters.service >>"
-                echo "export EXECUTOR_TYPE=python-docker-executor" >> $BASH_ENV
-                ;;
-            esac
-
-      # Set build path
       - run:
           name: Set build path
           command: |
@@ -93,16 +76,42 @@ workflows:
   version: 2
   build-and-push-all:
     jobs:
+      # Python services
       - build-and-push:
-          matrix:
-            parameters:
-              service:
-                - accounts-db
-                - contacts
-                - userservice
-                - frontend
-                - balancereader
-                - ledgerwriter
-                - transactionhistory
-                - ledger-db
-                - loadgenerator
+          name: build-python-accounts-db
+          service: accounts-db
+          executor: python-docker-executor
+      - build-and-push:
+          name: build-python-contacts
+          service: contacts
+          executor: python-docker-executor
+      - build-and-push:
+          name: build-python-userservice
+          service: userservice
+          executor: python-docker-executor
+      - build-and-push:
+          name: build-python-frontend
+          service: frontend
+          executor: python-docker-executor
+      - build-and-push:
+          name: build-python-ledger-db
+          service: ledger-db
+          executor: python-docker-executor
+      - build-and-push:
+          name: build-python-loadgenerator
+          service: loadgenerator
+          executor: python-docker-executor
+
+      # Java services
+      - build-and-push:
+          name: build-java-transactionhistory
+          service: transactionhistory
+          executor: java-docker-executor
+      - build-and-push:
+          name: build-java-ledgerwriter
+          service: ledgerwriter
+          executor: java-docker-executor
+      - build-and-push:
+          name: build-java-balancereader
+          service: balancereader
+          executor: java-docker-executor
