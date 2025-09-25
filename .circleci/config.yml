@@ -13,17 +13,13 @@ jobs:
     executor: docker-executor
     steps:
       - checkout
-
-      - setup_remote_docker:
-          version: 20.10.18
-
+      - setup_remote_docker
       - run:
           name: Build Docker image
           command: |
             IMAGE_NAME="${DOCKER_REGISTRY}/bank-of-anthos-<< parameters.service >>"
             docker build -t "$IMAGE_NAME:latest" ./src/<< parameters.service >>
             docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:${CIRCLE_SHA1}"
-
       - run:
           name: Push Docker image
           command: |
