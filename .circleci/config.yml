@@ -60,6 +60,7 @@ jobs:
             IMAGE_NAME="${DOCKER_REGISTRY}/${DOCKER_ORG}/bank-of-anthos-<< parameters.service >>"
             pwd
             ls -altr
+            echo $BUILD_PATH
             if [ -f "$BUILD_PATH/Dockerfile" ]; then
               echo "Building Dockerfile for << parameters.service >>"
               docker build -t "$IMAGE_NAME:latest" "$BUILD_PATH"
