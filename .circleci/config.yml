@@ -41,6 +41,8 @@ jobs:
                 ;;
             esac
             echo "export BUILD_PATH=$BUILD_PATH" >> $BASH_ENV
+      - setup_remote_docker:
+          docker_layer_caching: true
 
       - run:
           name: Build and push Docker image
