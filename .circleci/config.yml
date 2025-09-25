@@ -6,7 +6,7 @@ executors:
       - image: cimg/base:stable
   java-docker-executor:
     docker:
-      - image: gcr.io/cloud-builders/mvn
+      - image: gcr.io/k8s-skaffold/skaffold
 
 jobs:
   build-and-push:
