@@ -94,6 +94,8 @@ jobs:
               docker push "$IMAGE_NAME:${CIRCLE_SHA1}"
             elif [ -f "$BUILD_PATH/skaffold.yaml" ]; then
               echo "Building via Skaffold for << parameters.service >>"
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+              cat ~/.docker/config.json
               cd $BUILD_PATH
               pwd
               ls -altr
