@@ -19,6 +19,15 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install bash if missing
+          command: |
+            if ! command -v bash >/dev/null 2>&1; then
+              echo "Installing bash..."
+              apk add --no-cache bash
+            else
+              echo "bash already available"
+            fi
+      - run:
           name: Set build path
           command: |
             case "<< parameters.service >>" in
