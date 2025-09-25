@@ -56,7 +56,7 @@ jobs:
               docker push "$IMAGE_NAME:${CIRCLE_SHA1}"
             elif [ -f "$BUILD_PATH/skaffold.yaml" ]; then
               echo "Building via Skaffold for << parameters.service >>"
-              skaffold build -f "$BUILD_PATH/skaffold.yaml" -p default --default-repo "$DOCKER_REGISTRY/$DOCKER_ORG"
+              skaffold build -f "$BUILD_PATH/skaffold.yaml" --default-repo "$DOCKER_REGISTRY/$DOCKER_ORG"
             else
               echo "No Dockerfile or skaffold.yaml found for << parameters.service >>"
               exit 1
