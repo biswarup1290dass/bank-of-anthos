@@ -1,0 +1,42 @@
+version: 2.1
+
+executors:
+  docker-executor:
+    docker:
+      - image: cimg/base:stable
+
+jobs:
+  build-and-push:
+    parameters:
+      service:
+        type: string
+    executor: docker-executor
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          version: 20.10.18
+
+      - run:
+          name: Build Docker image
+          command: |
+            IMAGE_NAME="${DOCKER_REGISTRY}/bank-of-anthos-<< parameters.service >>"
+            docker build -t "$IMAGE_NAME:latest" ./src/<< parameters.service >>
+            docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:${CIRCLE_SHA1}"
+
+      - run:
+          name: Push Docker image
+          command: |
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin $DOCKER_REGISTRY
+            IMAGE_NAME="${DOCKER_REGISTRY}/${DOCKER_ORG}/bank-of-anthos-<< parameters.service >>"
+            docker push "$IMAGE_NAME:latest"
+            docker push "$IMAGE_NAME:${CIRCLE_SHA1}"
+
+workflows:
+  version: 2
+  build-and-push-all:
+    jobs:
+      - build-and-push:
+          matrix:
+            parameters:
+              service: [accounts, balancereader, contacts, frontend, ledgerwriter, loadgenerator, transactionhistory, userservice]
