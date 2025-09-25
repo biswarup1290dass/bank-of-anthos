@@ -13,18 +13,29 @@ jobs:
     parameters:
       service:
         type: string
-      executor_type:
-        type: string
-        default: "python-docker-executor"
-    executor: << parameters.executor_type >>
+    executor: python-docker-executor  # Placeholder; will switch dynamically
     steps:
       - checkout
 
-      # Install Skaffold only if needed
+      # Determine executor type based on service
       - run:
-          name: Install Skaffold
+          name: Select executor
           command: |
-            BUILD_PATH=""
+            case "<< parameters.service >>" in
+              balancereader|ledgerwriter|transactionhistory)
+                echo "Using Java executor for << parameters.service >>"
+                echo "export EXECUTOR_TYPE=java-docker-executor" >> $BASH_ENV
+                ;;
+              *)
+                echo "Using Python executor for << parameters.service >>"
+                echo "export EXECUTOR_TYPE=python-docker-executor" >> $BASH_ENV
+                ;;
+            esac
+
+      # Set build path
+      - run:
+          name: Set build path
+          command: |
             case "<< parameters.service >>" in
               accounts-db) BUILD_PATH="src/accounts/accounts-db" ;;
               contacts) BUILD_PATH="src/accounts/contacts" ;;
@@ -42,6 +53,10 @@ jobs:
             esac
             echo "export BUILD_PATH=$BUILD_PATH" >> $BASH_ENV
 
+      # Install Skaffold if needed
+      - run:
+          name: Install Skaffold if needed
+          command: |
             if [ -f "$BUILD_PATH/skaffold.yaml" ]; then
               echo "Installing Skaffold..."
               curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
@@ -53,7 +68,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
 
-      # Build & push
+      # Build & push Docker image
       - run:
           name: Build and push Docker image
           command: |
@@ -91,13 +106,3 @@ workflows:
                 - transactionhistory
                 - ledger-db
                 - loadgenerator
-              executor_type:
-                - python-docker-executor
-                - python-docker-executor
-                - python-docker-executor
-                - python-docker-executor
-                - java-docker-executor
-                - java-docker-executor
-                - java-docker-executor
-                - python-docker-executor
-                - python-docker-executor
