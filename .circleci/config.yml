@@ -58,7 +58,8 @@ jobs:
           name: Build and push Docker image
           command: |
             IMAGE_NAME="${DOCKER_REGISTRY}/${DOCKER_ORG}/bank-of-anthos-<< parameters.service >>"
-
+            pwd
+            ls -altr
             if [ -f "$BUILD_PATH/Dockerfile" ]; then
               echo "Building Dockerfile for << parameters.service >>"
               docker build -t "$IMAGE_NAME:latest" "$BUILD_PATH"
