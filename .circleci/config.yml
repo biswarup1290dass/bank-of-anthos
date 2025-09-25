@@ -6,7 +6,7 @@ executors:
       - image: cimg/base:stable
   java-docker-executor:
     docker:
-      - image: maven:3.8.7-openjdk-18-slim
+      - image: cimg/openjdk
 
 jobs:
   build-and-push:
