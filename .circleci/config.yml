@@ -37,31 +37,6 @@ jobs:
                 ;;
             esac
             echo "export BUILD_PATH=$BUILD_PATH" >> $BASH_ENV
-
-      # Install Skaffold if needed
-      - run:
-          name: Install Skaffold if needed
-          command: |
-            case "<< parameters.service >>" in
-              accounts-db) BUILD_PATH="src/accounts/accounts-db" ;;
-              contacts) BUILD_PATH="src/accounts/contacts" ;;
-              userservice) BUILD_PATH="src/accounts/userservice" ;;
-              frontend) BUILD_PATH="src/frontend" ;;
-              balancereader) BUILD_PATH="src/ledger/balancereader" ;;
-              ledgerwriter) BUILD_PATH="src/ledger/ledgerwriter" ;;
-              transactionhistory) BUILD_PATH="src/ledger/transactionhistory" ;;
-              ledger-db) BUILD_PATH="src/ledger/ledger-db" ;;
-              loadgenerator) BUILD_PATH="src/loadgenerator" ;;
-              *) echo "Unknown service: << parameters.service >>"; exit 1 ;;
-            esac
-            echo "Resolved BUILD_PATH=$BUILD_PATH"
-            if [ -f "$BUILD_PATH/skaffold.yaml" ]; then
-              echo "Installing Skaffold..."
-              curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
-              chmod +x skaffold
-              sudo mv skaffold /usr/local/bin/
-            fi
-
       # Enable Docker builds
       - setup_remote_docker:
           docker_layer_caching: true
