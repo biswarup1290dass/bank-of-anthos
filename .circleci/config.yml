@@ -13,7 +13,8 @@ jobs:
     parameters:
       service:
         type: string
-    executor: python-docker-executor  # Placeholder; will switch dynamically
+      executor:
+        type: string
     steps:
       - checkout
       - run:
