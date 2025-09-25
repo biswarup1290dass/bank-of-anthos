@@ -15,6 +15,7 @@ jobs:
         type: string
       executor:
         type: string
+    executor: "<< parameters.executor >>"
     steps:
       - checkout
       - run:
